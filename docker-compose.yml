@@ -1,0 +1,47 @@
+﻿version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: emailonebox-postgres
+    environment:
+      POSTGRES_DB: emailonebox
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - emailonebox
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: emailonebox-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    networks:
+      - emailonebox
+
+  redis:
+    image: redis:7-alpine
+    container_name: emailonebox-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - emailonebox
+
+volumes:
+  postgres_data:
+  es_data:
+
+networks:
+  emailonebox:
+    driver: bridge
